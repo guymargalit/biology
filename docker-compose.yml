@@ -1,0 +1,14 @@
+version: "2"
+services:
+  go:
+    image: golang:1.16
+    volumes:
+      - .:/go/src/biology
+    working_dir: /go/src/biology
+    command: go run main.go
+    ports:
+      - 8080:8080
+  redis:
+    image: redis:6.0.9
+    ports:
+      - 6379:6379  
