@@ -45,6 +45,7 @@ func main() {
     icf["Ca"] = Ion{Charge: 2, Concentration: 1e-4}
     icf["Cl"] = Ion{Charge: -1, Concentration: 10.0}
     icf["HCO3"] = Ion{Charge: -1, Concentration: 10.0}
+    icf["H"] = Ion{Charge: +1, Concentration: 40e-6}
 
     // Approximate ECF Composition Values (mEq/L)
     var ecf = map[string]Ion{}
@@ -53,6 +54,9 @@ func main() {
     ecf["Ca"] = Ion{Charge: 2, Concentration: 2.5}
     ecf["Cl"] = Ion{Charge: -1, Concentration: 105.0}
     ecf["HCO3"] = Ion{Charge: -1, Concentration: 24.0}
+    ecf["H"] = Ion{Charge: +1, Concentration: 80e-6}
+
+    var ions = []string{"Na","K","Ca","Cl","HCO3","H"}
 
     v := 90e-15 // Red blood cell (L)
 	c := Cell{
@@ -69,6 +73,7 @@ func main() {
                 Ions: ecf,
                 Volume: v,
             },
+            Ions: ions,
         },
     }
 

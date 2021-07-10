@@ -8,8 +8,10 @@ import (
 
 const (
 	kB = 1.380649e-23 // Boltzmann constant (J⋅K^−1)
-	T  = 255          // Absolute temperature (K)
+	T  = 255+37          // Body temperature 37 C (K)
 	NA = 6.0221409e+23 // Avogadro's constant (mol^-1)
+	R = 8.135 // Gas constant (J K^-1 mol^-1)
+	F = 9.684e+4 // Faraday's constant (C mol^-1)
 )
 
 type Membrane struct {
@@ -17,6 +19,8 @@ type Membrane struct {
 	Radius    float64 // Molecular radius
 	Viscosity float64 // Viscosity of the medium
 	Thickness float64 // Membrane thickness
+
+	Ions 	[]string // Permeable Ions
 
 	ICF		CF 	// Intracellular Fluid
 	ECF		CF	// Extracellular Fluid
@@ -53,8 +57,7 @@ func (m *Membrane) Calculate_Flux(ion string, cA float64, bA float64) float64 {
 }
 
 func (m *Membrane) Calculate_Equilibrium_Potential(ion string) float64 {
-	// Assume 2.3RT/F = 60 mV at body temperature 37C
-	return (-60/float64(m.ICF.Ions[ion].Charge))*math.Log10((m.ICF.Ions[ion].Concentration * math.Abs(float64(m.ICF.Ions[ion].Charge)))/(m.ECF.Ions[ion].Concentration*math.Abs(float64(m.ECF.Ions[ion].Charge))))
+	return (-(1.0e+3*(2.303*R*T)/F)/float64(m.ICF.Ions[ion].Charge))*math.Log10((m.ICF.Ions[ion].Concentration * math.Abs(float64(m.ICF.Ions[ion].Charge)))/(m.ECF.Ions[ion].Concentration*math.Abs(float64(m.ECF.Ions[ion].Charge))))
 }
 
 func (m *Membrane) Ca2_ATPase() {
@@ -96,20 +99,18 @@ func (m *Membrane) Transfer_Ions(ion string, mmol float64) {
 
 func (m *Membrane) Simple_Diffusion() {
 	// Simple Diffusion
-	icf := m.ICF.Ions
-	ecf := m.ECF.Ions
-	ions := ecf
-	if len(icf) <= len(ecf) {
-		ions = icf
-	}
-	charge := 0.0
-	for ion := range ions {
-		flux := m.Calculate_Flux(ion, icf[ion].Concentration, ecf[ion].Concentration)
+	for _, ion := range m.Ions {
+		flux := m.Calculate_Flux(ion, m.ICF.Ions[ion].Concentration, m.ECF.Ions[ion].Concentration)
 		m.Transfer_Ions(ion, flux)
-		charge = charge + m.Calculate_Equilibrium_Potential(ion)
-		//fmt.Printf("Charge [%v]: %v \n", ion, charge)
 	}
-	fmt.Printf("Total Charge: %v \n", charge)
+}
+
+func (m *Membrane) Membrane_Potential() {
+	Meq := 0.0
+	for _, ion := range m.Ions {
+		Meq = Meq + m.Calculate_Equilibrium_Potential(ion)
+	}
+	fmt.Printf("Membrane Potential : %v mV \n", Meq)
 }
 
 
@@ -117,6 +118,7 @@ func (m *Membrane) tick(d time.Duration) {
 	for range time.Tick(d) {
 		m.Simple_Diffusion();
 		m.Na_K_ATPase();
+		m.Membrane_Potential();
 		//fmt.Printf("mEq/L [%v] [ICF]: %v \n", "K", m.ICF.Ions["K"].Concentration)
 		//fmt.Printf("mEq/L [%v] [ECF]: %v \n", "K", m.ECF.Ions["K"].Concentration)
 	}
