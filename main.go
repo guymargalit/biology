@@ -25,10 +25,11 @@ func main() {
     ecf["HCO3"] = 24.0
     ecf["H"] = 80e-6
 
+    // Permeable Ions (Charge and Conductance)
     var ions = map[string]Ion{} 
     ions["Na"] = Ion{Z: 1, G: 0.05}
     ions["K"] = Ion{Z: 1, G: 1.0}
-    ions["Ca"] = Ion{Z: 2, G: 0.05}
+    ions["Ca"] = Ion{Z: 2, G: 0.01}
     ions["Cl"] = Ion{Z: -1, G: 0.45}
     ions["HCO3"] = Ion{Z: -1}
     ions["H"] = Ion{Z: +1}
@@ -46,7 +47,7 @@ func main() {
             },
             ECF: CF{
                 Ions: ecf,
-                Volume: v,
+                Volume: 2*v,
             },
             Ions: ions,
         },

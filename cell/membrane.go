@@ -116,6 +116,14 @@ func (m *Membrane) Membrane_Potential() {
 		Gt = Gt + m.Ions[ion].G
 	}
 	m.Potential = Em/Gt
+
+	for ion := range m.Ions {
+		Ex := m.Calculate_Equilibrium_Potential(ion)
+		DF := m.Potential - Ex
+		fmt.Printf("Net Driving Force [%v]: %v mV \n", ion, DF)
+		Ix := m.Ions[ion].G * DF
+		fmt.Printf("Ionic Current [%v]: %v mAmp \n", ion, Ix)
+	}
 }
 
 func (m *Membrane) tick(d time.Duration) {
@@ -123,7 +131,7 @@ func (m *Membrane) tick(d time.Duration) {
 		m.Simple_Diffusion();
 		m.Na_K_ATPase_Pump();
 		m.Membrane_Potential();
-		fmt.Printf("Membrane Potential: %v \n", m.Potential)
+		fmt.Printf("Membrane Potential: %v mV \n", m.Potential)
 		//fmt.Printf("mEq/L [%v] [ECF]: %v \n", "K", m.ECF.Ions["K"].Concentration)
 	}
 }
