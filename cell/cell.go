@@ -6,20 +6,17 @@ import (
 )
 
 type Ion struct {
-	Charge  		int		// (+/-)
-	Concentration	float64 // mEq/L
+	Z  		int		// Charge (+/-)
+	G		float64 // Conductance (1/ohm)
 }
 
 // Cellular Fluid
 type CF struct {
-    Ions 		map[string]Ion
+    Ions 		map[string]float64	// Concentrations (mEq/L)
 	Volume		float64
 }
 
 type Cell struct {
-	Osmolarity	float64
-	Charge		float64
-
 	Membrane
 }
 
